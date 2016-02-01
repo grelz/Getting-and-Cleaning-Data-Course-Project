@@ -3,22 +3,22 @@
 ################################################################################
 
 # This R script does the following:
-# 0. Read the training and the test sets from UCI HAR Dataset in work directory.
-# 1. Merges the training and the test sets to create one data set.
-# 2. Extracts only the measurements on the mean and standard deviation for each 
+# 1. Reads the training and the test sets from UCI HAR Dataset in work directory.
+# 2. Merges the training and the test sets to create one data set.
+# 3. Extracts only the measurements on the mean and standard deviation for each 
 #    measurement.
-# 3. Uses descriptive activity names to name the activities in the data set
-# 4. Appropriately labels the data set with descriptive variable names.
-# 5. From the data set in step 4, creates a second, independent tidy data set 
+# 4. Uses descriptive activity names to name the activities in the data set
+# 5. Appropriately labels the data set with descriptive variable names.
+# 6. From the data set in previous step, creates a second, independent tidy data set 
 #    with the average of each variable for each activity and each subject.
-# 6. Save tidy data set in step 5 into tidydata.txt
+# 7. Write tidy data set into tidydata.txt
 
 
 # Load libraries
 library(dplyr)
 
 
-# 0. Read the training and the test sets from UCI HAR Dataset in work directory.
+# 1. Reads the training and the test sets from UCI HAR Dataset in work directory.
 
 # Data set direcoty. Function read_data use this variable.
 data_set_dir <- "UCI HAR Dataset"
@@ -77,21 +77,21 @@ data_train <- bind_cols(data_train_subject, data_train_activiy, data_train_main)
 data_test <- bind_cols(data_test_subject, data_test_activiy, data_test_main)
 
 
-# 1. Merges the training and the test sets to create one data set.
+# 2. Merges the training and the test sets to create one data set.
 data_step1 <- bind_rows(data_train, data_test)
 
 
-# 2. Extracts only the measurements on the mean and standard deviation for each 
+# 3. Extracts only the measurements on the mean and standard deviation for each 
 #    measurement.
 data_step2 <- select(data_step1, 1, 2, grep("-mean\\(|-std\\(",names(data_step1)))
 
 
-# 3. Uses descriptive activity names to name the activities in the data set
+# 4. Uses descriptive activity names to name the activities in the data set
 data_step3 <- 
     mutate(data_step2, Activity = data_activity_labels$Activity.Label[Activity])
 
 
-# 4. Appropriately labels the data set with descriptive variable names.
+# 5. Appropriately labels the data set with descriptive variable names.
 names(data_step3) <- sapply(names(data_step3), function (col_name) {
     #tBody => Time.Body
     #tGravity => Time.Gravity
@@ -112,10 +112,10 @@ names(data_step3) <- sapply(names(data_step3), function (col_name) {
 })
 
 
-# 5. From the data set in step 4, creates a second, independent tidy data set 
+# 6. From the data set in previous step, creates a second, independent tidy data set 
 #    with the average of each variable for each activity and each subject.
 data_step5 <- group_by(data_step3, Subject, Activity) %>% summarise_each(funs(mean))
 
 
-# 6. Save tidy data set in step 5 into tidydata.txt
+# 7. Write tidy data set into tidydata.txt
 write.table(data_step5, "tidydata.txt", row.names = FALSE) 
